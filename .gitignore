@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Build output: published to npm, not versioned (npm run build)
+dist/
+
+# Test build output (tsconfig.test.json)
+out/
+
+# Logs
+npm-debug.log*
+*.log

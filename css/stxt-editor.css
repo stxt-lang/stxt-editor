@@ -1,0 +1,245 @@
+/*
+ * @stxt-lang/editor — the look of the editor.
+ *
+ * Everything is scoped to .stxt-editor, the class of the element that holds the editor, so other
+ * CodeMirror editors of the page are left alone. The colours are custom properties: override them
+ * on .stxt-editor (or on any ancestor) to theme the editor without touching this file.
+ *
+ * The defaults are the palette of https://stxt.dev.
+ */
+
+.stxt-editor {
+	/* Token colours */
+	--stxt-node: #0d5cb6; /* names of the nodes */
+	--stxt-block: #00b2f0; /* the '>>' of a text block */
+	--stxt-namespace: #0a9396; /* namespaces */
+	--stxt-value: #d05a80; /* values */
+	--stxt-muted: #6a737d; /* punctuation, line numbers, secondary text */
+	--stxt-comment: #008000; /* comments */
+
+	/* Chrome */
+	--stxt-background: #fff;
+	--stxt-text: #444;
+	--stxt-border: #e8f4fa;
+	--stxt-gutter-background: #f7fcff;
+	--stxt-active-line: rgba(10, 111, 174, 0.04);
+	--stxt-active-gutter: #e8f4fa;
+	--stxt-selected: #e8f4fa;
+	--stxt-code-background: rgba(10, 111, 174, 0.06);
+	--stxt-separator: #f5f5f5;
+
+	/* Fonts */
+	--stxt-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+	--stxt-font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--stxt-font-size: 0.9rem;
+
+	border: 1px solid var(--stxt-border);
+	background: var(--stxt-background);
+	color: var(--stxt-text);
+	text-align: left;
+}
+
+/* The editor fills its holder: give .stxt-editor a height to get a scrolling editor */
+.stxt-editor .cm-editor {
+	height: 100%;
+}
+
+.stxt-editor .cm-editor.cm-focused {
+	outline: none;
+}
+
+.stxt-editor .cm-scroller {
+	font-family: var(--stxt-font-mono);
+	font-size: var(--stxt-font-size);
+	line-height: 1.55;
+	tab-size: 4;
+}
+
+.stxt-editor .cm-gutters {
+	border-right: 1px solid var(--stxt-border);
+	background: var(--stxt-gutter-background);
+	color: var(--stxt-muted);
+}
+
+.stxt-editor .cm-activeLine {
+	background: var(--stxt-active-line);
+}
+
+.stxt-editor .cm-activeLineGutter {
+	background: var(--stxt-active-gutter);
+}
+
+.stxt-editor .cm-cursor {
+	border-left-color: var(--stxt-text);
+}
+
+/* Tokens of the language */
+
+.stxt-editor .stxt-tok-comment {
+	color: var(--stxt-comment);
+}
+
+.stxt-editor .stxt-tok-namespace {
+	color: var(--stxt-namespace);
+}
+
+.stxt-editor .stxt-tok-property {
+	color: var(--stxt-node);
+}
+
+.stxt-editor .stxt-tok-macro {
+	color: var(--stxt-block);
+}
+
+.stxt-editor .stxt-tok-string {
+	color: var(--stxt-value);
+}
+
+/* Content of the blocks a grammar declares as MARKDOWN */
+
+.stxt-editor .stxt-tok-md-heading {
+	color: var(--stxt-node);
+	font-weight: 700;
+}
+
+.stxt-editor .stxt-tok-md-bold {
+	font-weight: 700;
+}
+
+.stxt-editor .stxt-tok-md-italic {
+	font-style: italic;
+}
+
+.stxt-editor .stxt-tok-md-code {
+	color: var(--stxt-value);
+	background: var(--stxt-code-background);
+}
+
+.stxt-editor .stxt-tok-md-list {
+	color: var(--stxt-block);
+	font-weight: 700;
+}
+
+.stxt-editor .stxt-tok-md-quote {
+	color: var(--stxt-muted);
+}
+
+.stxt-editor .stxt-tok-md-link {
+	color: var(--stxt-namespace);
+	text-decoration: underline;
+}
+
+/* Tooltips: autocompletion, hover and diagnostics */
+
+.stxt-editor .cm-tooltip {
+	border: 1px solid var(--stxt-border);
+	background: var(--stxt-background);
+	color: var(--stxt-text);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.stxt-editor .cm-tooltip.cm-tooltip-autocomplete {
+	font-family: var(--stxt-font-mono);
+	font-size: 0.85rem;
+}
+
+.stxt-editor .cm-tooltip.cm-tooltip-autocomplete > ul {
+	max-height: 14rem;
+}
+
+.stxt-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+	padding: 0.15rem 0.5rem;
+	line-height: 1.5;
+}
+
+.stxt-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+	background: var(--stxt-selected);
+	color: var(--stxt-text);
+}
+
+.stxt-editor .cm-completionLabel {
+	color: var(--stxt-node);
+}
+
+.stxt-editor .cm-completionDetail {
+	margin-left: 0.6rem;
+	color: var(--stxt-muted);
+	font-style: normal;
+	font-size: 0.75rem;
+}
+
+.stxt-editor .cm-completionIcon {
+	opacity: 0.6;
+}
+
+.stxt-editor .cm-tooltip-lint {
+	font-family: var(--stxt-font-body);
+	font-size: 0.8rem;
+}
+
+/* Hover: the node under the pointer and what its grammar says */
+
+.stxt-editor .stxt-hover {
+	max-width: 32rem;
+	padding: 0.5rem 0.75rem;
+	font-family: var(--stxt-font-body);
+	font-size: 0.8rem;
+	line-height: 1.5;
+	color: var(--stxt-text);
+}
+
+.stxt-editor .stxt-hover-title {
+	font-family: var(--stxt-font-mono);
+	font-size: 0.85rem;
+}
+
+.stxt-editor .stxt-hover-name {
+	color: var(--stxt-node);
+	font-weight: 700;
+}
+
+.stxt-editor .stxt-hover-namespace {
+	color: var(--stxt-namespace);
+}
+
+.stxt-editor .stxt-hover-facts,
+.stxt-editor .stxt-hover-none {
+	color: var(--stxt-muted);
+}
+
+.stxt-editor .stxt-hover-definition {
+	margin-top: 0.4rem;
+	padding-top: 0.4rem;
+	border-top: 1px solid var(--stxt-separator);
+}
+
+.stxt-editor .stxt-hover-heading {
+	margin-bottom: 0.15rem;
+	color: var(--stxt-namespace);
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.stxt-editor .stxt-hover-row {
+	display: flex;
+	gap: 0.6rem;
+}
+
+.stxt-editor .stxt-hover-key {
+	flex: none;
+	width: 4rem;
+	color: var(--stxt-muted);
+}
+
+.stxt-editor .stxt-hover-value {
+	font-family: var(--stxt-font-mono);
+	font-size: 0.78rem;
+	word-break: break-word;
+}
+
+.stxt-editor .stxt-hover-description {
+	margin-top: 0.4rem;
+	white-space: pre-wrap;
+}

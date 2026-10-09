@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>STXT Editor example</title>
+	<link rel="stylesheet" href="../dist/stxt-editor.css">
+	<style>
+		body {
+			max-width: 52rem;
+			margin: 0 auto;
+			padding: 1.5rem 1rem 3rem;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			color: #444;
+			line-height: 1.5;
+		}
+		h1 {
+			font-size: 1.4rem;
+		}
+		code {
+			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+			font-size: 0.85em;
+		}
+		.toolbar {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			margin: 1rem 0 0.5rem;
+		}
+		button {
+			padding: 0.25rem 0.7rem;
+			border: 1px solid #0a6fae;
+			background: #fff;
+			color: #0a6fae;
+			font: inherit;
+			font-size: 0.85rem;
+			cursor: pointer;
+		}
+		button[aria-pressed="true"] {
+			background: #0a6fae;
+			color: #fff;
+		}
+		/* A fixed height gives a scrolling editor; without it, the editor grows with the text */
+		.stxt-editor {
+			height: 22rem;
+		}
+		pre {
+			tab-size: 4;
+		}
+		#problems {
+			margin: 0.5rem 0 0;
+			padding: 0;
+			list-style: none;
+			font-size: 0.85rem;
+		}
+		#problems li {
+			padding: 0.2rem 0;
+			border-bottom: 1px solid #f5f5f5;
+		}
+		#problems .error {
+			color: #b3261e;
+		}
+		#problems .warning {
+			color: #8a6d00;
+		}
+		#problems .none {
+			color: #6a737d;
+		}
+	</style>
+</head>
+<body>
+	<h1>STXT Editor</h1>
+	<p>
+		A plain <code>&lt;textarea&gt;</code> turned into an STXT editor with one call, validated
+		against the template below. Try breaking the indentation, writing
+		<code>Difficulty: Impossible</code>, or pressing Ctrl+Space on an empty line of the recipe.
+	</p>
+
+	<div class="toolbar">
+		<button type="button" id="tabs" aria-pressed="true">Tabs</button>
+		<button type="button" id="spaces" aria-pressed="false">Spaces</button>
+		<button type="button" id="validation" aria-pressed="true">Schema validation</button>
+		<button type="button" id="read-only" aria-pressed="false">Read-only</button>
+	</div>
+
+	<form id="form">
+		<textarea id="document" name="document">
+# Hover over a node to see what its template says about it
+Recipe (com.example.cooking): Pancakes
+	Serves: 4
+	Minutes: 20
+	Difficulty: Easy
+	Ingredients:
+		Ingredient: 200 g flour
+		Ingredient: 2 eggs
+		Ingredient: 300 ml milk
+	Steps >>
+		Whisk everything together.
+		Rest the batter for ten minutes.
+		Cook on a hot pan, one ladle at a time.
+	Notes >>
+		**Tip**: a pinch of salt makes them *better*.
+</textarea>
+		<ul id="problems"></ul>
+		<p><button type="submit">Submit the form</button> <span id="submitted"></span></p>
+	</form>
+
+	<h2>The template</h2>
+	<p>Passed to the editor as <code>grammars</code>, as plain text:</p>
+	<pre id="template-text"></pre>
+
+	<script type="text/plain" id="template">
+Template (@stxt.template): com.example.cooking
+	Structure >>
+		Recipe (com.example.cooking):
+			Serves: (?) NATURAL
+			Minutes: (?) NATURAL
+			Difficulty: (?) ENUM [Easy, Medium, Hard]
+			Ingredients: (1)
+				Ingredient: (+)
+			Steps: (1) TEXT
+			Notes: (?) MARKDOWN
+</script>
+
+	<script src="../dist/stxt-editor.js"></script>
+	<script>
+		const template = document.getElementById("template").textContent.replace(/^\n/, "");
+		const problems = document.getElementById("problems");
+
+		function showProblems(diagnostics) {
+			problems.replaceChildren();
+			if (diagnostics.length === 0) {
+				const item = document.createElement("li");
+				item.className = "none";
+				item.textContent = "No problems.";
+				problems.appendChild(item);
+			}
+			for (const diagnostic of diagnostics) {
+				const item = document.createElement("li");
+				item.className = diagnostic.severity;
+				item.textContent = `Line ${diagnostic.line + 1} · ${diagnostic.code} · ${diagnostic.message}`;
+				problems.appendChild(item);
+			}
+		}
+
+		// The whole integration: the textarea and the grammars
+		const editor = StxtEditor.fromTextArea(document.getElementById("document"), {
+			grammars: [template],
+			onChange: (text, diagnostics) => showProblems(diagnostics),
+		});
+
+		// The rest of the page: the switches, and what the form submits
+		document.getElementById("template-text").textContent = template;
+
+		const press = (id, pressed) => document.getElementById(id).setAttribute("aria-pressed", String(pressed));
+		const pressed = (id) => document.getElementById(id).getAttribute("aria-pressed") === "true";
+
+		for (const mode of ["tabs", "spaces"]) {
+			document.getElementById(mode).addEventListener("click", () => {
+				editor.setIndent(mode);
+				press("tabs", mode === "tabs");
+				press("spaces", mode === "spaces");
+			});
+		}
+		document.getElementById("validation").addEventListener("click", () => {
+			const enabled = !pressed("validation");
+			editor.setValidation(enabled);
+			press("validation", enabled);
+			showProblems(editor.getDiagnostics());
+		});
+		document.getElementById("read-only").addEventListener("click", () => {
+			const readOnly = !pressed("read-only");
+			editor.setReadOnly(readOnly);
+			press("read-only", readOnly);
+		});
+		document.getElementById("form").addEventListener("submit", (event) => {
+			event.preventDefault();
+			const text = new FormData(event.target).get("document");
+			document.getElementById("submitted").textContent = `The form sent ${text.split("\n").length} lines.`;
+		});
+	</script>
+</body>
+</html>
