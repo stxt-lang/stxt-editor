@@ -7,6 +7,10 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/index.mjs"
     },
+    "./highlight": {
+      "types": "./dist/types/highlight.d.ts",
+      "import": "./dist/highlight.mjs"
+    },
     "./stxt-editor.css": "./dist/stxt-editor.css",
     "./package.json": "./package.json"
   },
@@ -25,8 +29,8 @@
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "npm run clean && npm run build:esm && npm run build:bundle && npm run build:types && npm run build:css",
-    "build:esm": "esbuild src/index.ts --bundle --format=esm --target=es2021 --sourcemap --external:@codemirror/* --external:@stxt-lang/core --outfile=dist/index.mjs",
-    "build:bundle": "esbuild src/index.ts --bundle --format=iife --global-name=StxtEditor --target=es2021 --minify --sourcemap --outfile=dist/stxt-editor.js",
+    "build:esm": "esbuild src/index.ts src/highlight.ts --bundle --format=esm --target=es2021 --sourcemap --external:@codemirror/* --external:@stxt-lang/core --outdir=dist --out-extension:.js=.mjs",
+    "build:bundle": "esbuild src/index.ts --bundle --format=iife --global-name=StxtEditor --target=es2021 --minify --sourcemap --outfile=dist/stxt-editor.js && esbuild src/highlight.ts --bundle --format=iife --global-name=StxtHighlight --target=es2021 --minify --sourcemap --outfile=dist/stxt-highlight.js",
     "build:types": "tsc -p tsconfig.types.json",
     "build:css": "node -e \"require('node:fs').copyFileSync('css/stxt-editor.css', 'dist/stxt-editor.css')\"",
     "typecheck": "tsc --noEmit",

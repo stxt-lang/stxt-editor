@@ -4,9 +4,14 @@
  * The simple way in is {@link fromTextArea} or {@link mount}, which give an {@link Editor}. The
  * pieces underneath are exported too, for an app that needs more than one document per view, or
  * another layout: the {@link Analyzer} (no DOM, no CodeMirror) and the CodeMirror extensions.
+ *
+ * Static highlighting, without CodeMirror, is {@link highlightAll}; on its own, without the
+ * editor, it is `@stxt-lang/editor/highlight`.
  */
 
 export { Editor, EditorOptions, fromTextArea, mount } from "./Editor";
+export { highlight, highlightAll, highlightText, HighlightOptions } from "./highlight";
+export { TOKEN_CLASSES } from "./tokenClasses";
 
 // The CodeMirror layer
 export { createStxtEditor, createStxtExtensions, IndentMode, INDENT_UNITS, StxtEditor, StxtEditorConfig } from "./editor/stxtEditor";

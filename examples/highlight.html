@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>STXT highlighting example</title>
+	<link rel="stylesheet" href="../dist/stxt-editor.css">
+	<link rel="stylesheet" href="example.css">
+</head>
+<body>
+	<h1>STXT highlighting</h1>
+	<p><a href="index.html">Editor example</a></p>
+	<p>Static highlighting, without the editor: one script and one call.</p>
+
+<pre><code class="language-stxt"># A comment
+Recipe (com.example.cooking): Pancakes
+	Serves: 4
+	Ingredients:
+		Ingredient: 200 g flour
+		Ingredient: 2 eggs
+	Steps >>
+		Whisk everything together.
+		Cook on a hot pan.
+</code></pre>
+
+	<script src="../dist/stxt-highlight.js"></script>
+	<script>
+		StxtHighlight.highlightAll();
+	</script>
+</body>
+</html>

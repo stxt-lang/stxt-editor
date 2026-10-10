@@ -1,6 +1,7 @@
 import { Range, StateEffect, StateField, Text } from "@codemirror/state";
 import { Decoration, DecorationSet, EditorView } from "@codemirror/view";
 import { StxtToken, StxtTokenType } from "../analysis";
+import { TOKEN_CLASSES } from "../tokenClasses";
 
 /**
  * STXT highlighting for CodeMirror.
@@ -15,22 +16,10 @@ import { StxtToken, StxtTokenType } from "../analysis";
 /** Effect that replaces the current highlighting with the tokens of a fresh analysis. */
 export const setTokensEffect = StateEffect.define<StxtToken[]>();
 
-/** One reusable mark per token type, styled from the SCSS palette. */
-const MARKS: Record<StxtTokenType, Decoration> = {
-	comment: Decoration.mark({ class: "stxt-tok-comment" }),
-	namespace: Decoration.mark({ class: "stxt-tok-namespace" }),
-	property: Decoration.mark({ class: "stxt-tok-property" }),
-	macro: Decoration.mark({ class: "stxt-tok-macro" }),
-	string: Decoration.mark({ class: "stxt-tok-string" }),
-	// Content of MARKDOWN blocks
-	markdownHeading: Decoration.mark({ class: "stxt-tok-md-heading" }),
-	markdownBold: Decoration.mark({ class: "stxt-tok-md-bold" }),
-	markdownItalic: Decoration.mark({ class: "stxt-tok-md-italic" }),
-	markdownCode: Decoration.mark({ class: "stxt-tok-md-code" }),
-	markdownList: Decoration.mark({ class: "stxt-tok-md-list" }),
-	markdownQuote: Decoration.mark({ class: "stxt-tok-md-quote" }),
-	markdownLink: Decoration.mark({ class: "stxt-tok-md-link" }),
-};
+/** One reusable mark per token type, styled by the stylesheet. */
+const MARKS = Object.fromEntries(
+	Object.entries(TOKEN_CLASSES).map(([type, className]) => [type, Decoration.mark({ class: className })]),
+) as Record<StxtTokenType, Decoration>;
 
 /** Turns analysis tokens (0-based lines and columns) into decoration ranges of the document. */
 function buildDecorations(tokens: StxtToken[], doc: Text): DecorationSet {

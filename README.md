@@ -89,9 +89,36 @@ editor is made of:
 - `createStxtEditor`, `createStxtExtensions`: the CodeMirror extensions.
 - `setTokensEffect`, `toCmDiagnostics`: to push an analysis into a view.
 
+## Static highlighting
+
+For pages that show STXT and do not edit it, there is a highlighter without CodeMirror, much
+lighter than the editor (about 21 kB gzipped, against 133 kB):
+
+```html
+<link rel="stylesheet" href="stxt-editor.css">
+<script src="stxt-highlight.js"></script>
+
+<pre><code class="language-stxt">Recipe (com.example.cooking): Pancakes
+	Serves: 4</code></pre>
+
+<script>
+	StxtHighlight.highlightAll();
+</script>
+```
+
+| Call | What it does |
+|---|---|
+| `highlightAll(selector, options)` | Highlights every element that matches. `selector` defaults to `pre code.language-stxt` |
+| `highlight(element, options)` | Highlights one element in place |
+| `highlightText(text, options)` | Returns the HTML, without touching the DOM: it also works on a server |
+
+The only option is `grammars`: with them, blocks that a grammar declares as `MARKDOWN` are
+highlighted as Markdown. With a bundler: `import { highlightAll } from "@stxt-lang/editor/highlight"`.
+
 ## Themes
 
-The colours are CSS custom properties on `.stxt-editor`. Override them to theme the editor:
+The colours are CSS custom properties on `.stxt-editor` (the editor) and `.stxt-highlight` (static
+highlighting). Override them to theme both:
 
 ```css
 .stxt-editor {
@@ -112,6 +139,7 @@ npm install
 npm test        # lint + mocha
 npm run build   # typecheck + lint, then dist/
 npm start       # build and open examples/ at http://localhost:8080 (PORT changes it)
+                # examples/index.html is the editor, examples/highlight.html the highlighter
 ```
 
 ## License

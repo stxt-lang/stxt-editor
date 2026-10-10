@@ -2,13 +2,15 @@
  * @stxt-lang/editor — the look of the editor.
  *
  * Everything is scoped to .stxt-editor, the class of the element that holds the editor, so other
- * CodeMirror editors of the page are left alone. The colours are custom properties: override them
- * on .stxt-editor (or on any ancestor) to theme the editor without touching this file.
+ * CodeMirror editors of the page are left alone, and to .stxt-highlight, the class of an element
+ * highlighted statically. The colours are custom properties: override them on those classes (or
+ * on any ancestor) to theme them without touching this file.
  *
  * The defaults are the palette of https://stxt.dev.
  */
 
-.stxt-editor {
+.stxt-editor,
+.stxt-highlight {
 	/* Token colours */
 	--stxt-node: #0d5cb6; /* names of the nodes */
 	--stxt-block: #00b2f0; /* the '>>' of a text block */
@@ -32,11 +34,20 @@
 	--stxt-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 	--stxt-font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 	--stxt-font-size: 0.9rem;
+}
 
+.stxt-editor {
 	border: 1px solid var(--stxt-border);
 	background: var(--stxt-background);
 	color: var(--stxt-text);
 	text-align: left;
+}
+
+/* Static highlighting: only the text; the box (background, border, padding) is the page's */
+.stxt-highlight {
+	color: var(--stxt-text);
+	font-family: var(--stxt-font-mono);
+	tab-size: 4;
 }
 
 /* The editor fills its holder: give .stxt-editor a height to get a scrolling editor */
@@ -75,56 +86,56 @@
 
 /* Tokens of the language */
 
-.stxt-editor .stxt-tok-comment {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-comment {
 	color: var(--stxt-comment);
 }
 
-.stxt-editor .stxt-tok-namespace {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-namespace {
 	color: var(--stxt-namespace);
 }
 
-.stxt-editor .stxt-tok-property {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-property {
 	color: var(--stxt-node);
 }
 
-.stxt-editor .stxt-tok-macro {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-macro {
 	color: var(--stxt-block);
 }
 
-.stxt-editor .stxt-tok-string {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-string {
 	color: var(--stxt-value);
 }
 
 /* Content of the blocks a grammar declares as MARKDOWN */
 
-.stxt-editor .stxt-tok-md-heading {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-heading {
 	color: var(--stxt-node);
 	font-weight: 700;
 }
 
-.stxt-editor .stxt-tok-md-bold {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-bold {
 	font-weight: 700;
 }
 
-.stxt-editor .stxt-tok-md-italic {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-italic {
 	font-style: italic;
 }
 
-.stxt-editor .stxt-tok-md-code {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-code {
 	color: var(--stxt-value);
 	background: var(--stxt-code-background);
 }
 
-.stxt-editor .stxt-tok-md-list {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-list {
 	color: var(--stxt-block);
 	font-weight: 700;
 }
 
-.stxt-editor .stxt-tok-md-quote {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-quote {
 	color: var(--stxt-muted);
 }
 
-.stxt-editor .stxt-tok-md-link {
+:is(.stxt-editor, .stxt-highlight) .stxt-tok-md-link {
 	color: var(--stxt-namespace);
 	text-decoration: underline;
 }
