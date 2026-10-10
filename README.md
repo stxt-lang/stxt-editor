@@ -4,20 +4,34 @@ The [STXT](https://stxt.dev) editor for any web page: a `<textarea>` becomes an 
 highlighting, errors while typing, and completion and hover driven by the grammar.
 
 ```html
-<link rel="stylesheet" href="stxt-editor.css">
-<script src="stxt-editor.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-editor.css">
+<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-editor.js"></script>
 
-<textarea id="doc" name="doc"></textarea>
+<textarea id="doc" name="doc">
+Recipe (com.example.cooking): Pancakes
+	Serves: four
+	Difficulty: Easy
+</textarea>
 
 <script>
+	const template = `
+Template (@stxt.template): com.example.cooking
+	Structure >>
+		Recipe (com.example.cooking):
+			Serves: (1) NATURAL
+			Difficulty: (?) ENUM [Easy, Medium, Hard]
+`;
+
 	const editor = StxtEditor.fromTextArea(document.getElementById("doc"), {
-		grammars: [templateText],
+		grammars: [template],
 		onChange: (text, diagnostics) => console.log(diagnostics),
 	});
 </script>
 ```
 
-> **Status: 0.1.0, in development.** The API may still change. Not published on npm yet.
+`Serves: four` is underlined: the template says `NATURAL`.
+
+> **Status: 0.1.0.** The API may still change before 1.0.
 
 ## What it does
 
@@ -33,6 +47,19 @@ highlighting, errors while typing, and completion and hover driven by the gramma
 
 ## Install
 
+### With a `<script>`
+
+The package carries its files ready for a page, minified. Any CDN that serves npm packages
+serves them, under `https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/`:
+
+| File | Global | Size (gzip) | What it has |
+|---|---|---|---|
+| `dist/stxt-editor.js` | `StxtEditor` | 421 kB (133 kB) | The editor and the static highlighting, with CodeMirror and `@stxt-lang/core` inside |
+| `dist/stxt-highlight.js` | `StxtHighlight` | 76 kB (21 kB) | Only the static highlighting, without CodeMirror |
+| `dist/stxt-editor.css` | — | 6 kB (2 kB) | The styles of both |
+
+### With a bundler
+
 ```bash
 npm install @stxt-lang/editor
 ```
@@ -42,11 +69,8 @@ import { fromTextArea } from "@stxt-lang/editor";
 import "@stxt-lang/editor/stxt-editor.css";
 ```
 
-The package is ESM. CodeMirror and `@stxt-lang/core` are dependencies, not bundled, so a page that
-already uses CodeMirror loads a single copy.
-
-Without a bundler, `dist/stxt-editor.js` has everything inside and defines a global
-`StxtEditor`.
+The package is ESM, with type declarations. CodeMirror and `@stxt-lang/core` are dependencies,
+not bundled, so a page that already uses CodeMirror loads a single copy.
 
 ## API
 
@@ -54,6 +78,8 @@ Without a bundler, `dist/stxt-editor.js` has everything inside and defines a glo
 |---|---|
 | `fromTextArea(textarea, options)` | Replaces a textarea with an editor. The textarea is hidden and keeps the text |
 | `mount(element, options)` | Creates an editor inside an element |
+
+Both return an `Editor`. Every option is optional:
 
 | Option | Default | |
 |---|---|---|
@@ -64,6 +90,8 @@ Without a bundler, `dist/stxt-editor.js` has everything inside and defines a glo
 | `readOnly` | `false` | The text can be read, not edited |
 | `onChange` | — | `(text, diagnostics) => void`, on creation and after every change |
 
+A grammar written inside the document itself works too.
+
 | Method | |
 |---|---|
 | `getValue()` / `setValue(text)` | The text. `setValue` is an edit: it can be undone |
@@ -71,14 +99,19 @@ Without a bundler, `dist/stxt-editor.js` has everything inside and defines a glo
 | `setValidation(enabled)` | Turns validation on or off |
 | `setIndent(mode)` | Changes what Tab inserts and re-indents the document |
 | `setReadOnly(readOnly)` | Read-only or editable |
-| `getDiagnostics()` | The problems of the document. Lines are 0-based |
+| `getDiagnostics()` | The problems of the document |
 | `getGrammarDiagnostics()` | The problems of each grammar, in order |
 | `focus()` / `destroy()` | `destroy` removes the editor and shows the textarea again |
 | `view` | The CodeMirror `EditorView` |
 
-A diagnostic is `{ line, code, message, severity, source }`. `code` is the stable error code of the
-ecosystem (`INDENTATION_MIXED`, `INVALID_VALUE`…), `severity` is `"error"` or `"warning"`, and
-`source` is `"syntax"`, `"grammar"` or `"validation"`.
+A diagnostic is `{ line, code, message, severity, source }`:
+
+| Field | |
+|---|---|
+| `line` | 0-based |
+| `code` | The stable error code of the ecosystem: `INDENTATION_MIXED`, `INVALID_VALUE`… |
+| `severity` | `"error"` or `"warning"` |
+| `source` | `"syntax"`, `"grammar"` or `"validation"` |
 
 ### The pieces underneath
 
@@ -91,12 +124,11 @@ editor is made of:
 
 ## Static highlighting
 
-For pages that show STXT and do not edit it, there is a highlighter without CodeMirror, much
-lighter than the editor (about 21 kB gzipped, against 133 kB):
+For pages that show STXT and do not edit it, there is a highlighter without CodeMirror:
 
 ```html
-<link rel="stylesheet" href="stxt-editor.css">
-<script src="stxt-highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-editor.css">
+<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-highlight.js"></script>
 
 <pre><code class="language-stxt">Recipe (com.example.cooking): Pancakes
 	Serves: 4</code></pre>
@@ -110,27 +142,48 @@ lighter than the editor (about 21 kB gzipped, against 133 kB):
 |---|---|
 | `highlightAll(selector, options)` | Highlights every element that matches. `selector` defaults to `pre code.language-stxt` |
 | `highlight(element, options)` | Highlights one element in place |
-| `highlightText(text, options)` | Returns the HTML, without touching the DOM: it also works on a server |
+| `highlightText(text, options)` | Returns the HTML, without touching the DOM: it also works in Node, on a server or in a build |
 
 The only option is `grammars`: with them, blocks that a grammar declares as `MARKDOWN` are
-highlighted as Markdown. With a bundler: `import { highlightAll } from "@stxt-lang/editor/highlight"`.
+highlighted as Markdown.
+
+With a bundler: `import { highlightAll } from "@stxt-lang/editor/highlight"`.
 
 ## Themes
 
-The colours are CSS custom properties on `.stxt-editor` (the editor) and `.stxt-highlight` (static
-highlighting). Override them to theme both:
+The colours are CSS custom properties on `.stxt-editor` (the editor) and `.stxt-highlight`
+(static highlighting). A page themes both by overriding them:
 
 ```css
-.stxt-editor {
+.stxt-editor,
+.stxt-highlight {
 	--stxt-node: #0d5cb6;
 	--stxt-value: #d05a80;
 	--stxt-comment: #008000;
 	--stxt-background: #fff;
+}
+
+.stxt-editor {
 	height: 22rem;
 }
 ```
 
-The full list is at the top of `stxt-editor.css`. Without a height, the editor grows with the text.
+Without a height, the editor grows with the text. With one, it scrolls.
+
+| Property | Colours |
+|---|---|
+| `--stxt-node` | Names of the nodes |
+| `--stxt-block` | The `>>` of a text block |
+| `--stxt-namespace` | Namespaces |
+| `--stxt-value` | Values |
+| `--stxt-comment` | Comments |
+| `--stxt-muted` | Punctuation, line numbers, secondary text |
+| `--stxt-background`, `--stxt-text`, `--stxt-border` | The box of the editor |
+| `--stxt-gutter-background`, `--stxt-active-line`, `--stxt-active-gutter` | The line numbers and the current line |
+| `--stxt-selected`, `--stxt-code-background`, `--stxt-separator` | The selected completion, inline Markdown code, the rule of the hover |
+| `--stxt-font-mono`, `--stxt-font-body`, `--stxt-font-size` | Fonts |
+
+The defaults are the palette of <https://stxt.dev>.
 
 ## Development
 
