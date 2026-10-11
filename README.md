@@ -4,8 +4,8 @@ The [STXT](https://stxt.dev) editor for any web page: a `<textarea>` becomes an 
 highlighting, errors while typing, and completion and hover driven by the grammar.
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-editor.css">
-<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-editor.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-editor.css">
+<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-editor.js"></script>
 
 <textarea id="doc" name="doc">
 Recipe (com.example.cooking): Pancakes
@@ -31,7 +31,7 @@ Template (@stxt.template): com.example.cooking
 
 `Serves: four` is underlined: the template says `NATURAL`.
 
-> **Status: 0.3.0.** The API may still change before 1.0.
+> **Status: 0.4.0.** The API may still change before 1.0.
 
 ## What it does
 
@@ -41,7 +41,8 @@ Template (@stxt.template): com.example.cooking
 - **Errors while typing**: syntax errors, and validation errors against the grammars.
 - **Completion** (typing, or Ctrl+Space): the nodes the grammar allows at that point, and the
   `ENUM` values.
-- **Hover** over a node shows what the parser and its grammar know about it.
+- **Hover** over a node shows what the parser and its grammar know about it, or only what the
+  grammar says: its description, its type and its values.
 - **Go to definition** (Ctrl+Click or Ctrl+B on the name of a node; Cmd on macOS): to the line of
   the grammar that declares it.
 - **Tab inserts indentation**: a tab, or four spaces. Switching re-indents the document.
@@ -52,11 +53,11 @@ Template (@stxt.template): com.example.cooking
 ### With a `<script>`
 
 The package carries its files ready for a page, minified. Any CDN that serves npm packages
-serves them, under `https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/`:
+serves them, under `https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/`:
 
 | File | Global | Size (gzip) | What it has |
 |---|---|---|---|
-| `dist/stxt-editor.js` | `StxtEditor` | 421 kB (133 kB) | The editor and the static highlighting, with CodeMirror and `@stxt-lang/core` inside |
+| `dist/stxt-editor.js` | `StxtEditor` | 422 kB (134 kB) | The editor and the static highlighting, with CodeMirror and `@stxt-lang/core` inside |
 | `dist/stxt-highlight.js` | `StxtHighlight` | 76 kB (21 kB) | Only the static highlighting, without CodeMirror |
 | `dist/stxt-editor.css` | — | 6 kB (2 kB) | The styles of both |
 | `dist/stxt-editor-dark.css` | — | 7 kB (2 kB) | The same styles with the [dark theme](#dark-theme), instead of `stxt-editor.css` |
@@ -91,6 +92,8 @@ Both return an `Editor`. Every option is optional:
 | `validation` | `true` | Validate against the grammars. Syntax errors are always reported |
 | `indent` | `"tabs"` | What Tab inserts: `"tabs"` or `"spaces"` |
 | `readOnly` | `false` | The text can be read, not edited |
+| `lineNumbers` | `true` | Show the line numbers. The marks of the lines with problems stay either way |
+| `developerInfo` | `true` | What the [hover](#hover) shows: the technical card, or only what the grammar says |
 | `onChange` | — | `(text, diagnostics) => void`, on creation and after every change |
 | `onGoToDefinition` | — | `(location) => void`, on [go to definition](#go-to-definition) into one of `grammars` |
 
@@ -109,6 +112,8 @@ editor.setGrammars([template]);
 | `setValidation(enabled)` | Turns validation on or off |
 | `setIndent(mode)` | Changes what Tab inserts and re-indents the document |
 | `setReadOnly(readOnly)` | Read-only or editable |
+| `setLineNumbers(show)` | Shows or hides the line numbers |
+| `setDeveloperInfo(show)` | Changes what the [hover](#hover) shows |
 | `getDiagnostics()` | The problems of the document |
 | `getGrammarDiagnostics()` | The problems of each grammar, in order |
 | `focus()` / `destroy()` | `destroy` removes the editor and shows the textarea again |
@@ -122,6 +127,23 @@ A diagnostic is `{ line, code, message, severity, source }`:
 | `code` | The stable error code of the ecosystem: `INDENTATION_MIXED`, `INVALID_VALUE`… |
 | `severity` | `"error"` or `"warning"` |
 | `source` | `"syntax"`, `"grammar"` or `"validation"` |
+
+### Hover
+
+| `developerInfo` | The hover shows | A node no grammar declares |
+|---|---|---|
+| `true` | The technical card: text block or inline node, level, value, canonical name, and from the grammar the type, the values, the children with their cardinality and the description | The card, without the grammar part |
+| `false` | What the grammar says, for whoever writes the document: the description, the type and, for an `ENUM`, the values | No hover |
+
+```js
+const editor = StxtEditor.fromTextArea(textarea, {
+	grammars: [template],
+	developerInfo: false,
+});
+```
+
+The description is the `Description` of the node in a schema, or its entry in the `Description`
+of a template.
 
 ### Go to definition
 
@@ -157,8 +179,8 @@ editor is made of:
 For pages that show STXT and do not edit it, there is a highlighter without CodeMirror:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-editor.css">
-<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-editor.css">
+<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-highlight.js"></script>
 
 <pre><code class="language-stxt">Recipe (com.example.cooking): Pancakes
 	Serves: 4</code></pre>
@@ -221,7 +243,7 @@ The defaults are the palette of <https://stxt.dev>.
 `stxt-editor.css`:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-editor-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-editor-dark.css">
 ```
 
 With a bundler: `import "@stxt-lang/editor/stxt-editor-dark.css"`.
@@ -229,8 +251,8 @@ With a bundler: `import "@stxt-lang/editor/stxt-editor-dark.css"`.
 To follow the colour scheme of the system, a page loads both, each with its `media`:
 
 ```html
-<link rel="stylesheet" media="(prefers-color-scheme: light)" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-editor.css">
-<link rel="stylesheet" media="(prefers-color-scheme: dark)" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.3.0/dist/stxt-editor-dark.css">
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-editor.css">
+<link rel="stylesheet" media="(prefers-color-scheme: dark)" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.4.0/dist/stxt-editor-dark.css">
 ```
 
 The dark palette is the same set of properties, so it is overridden the same way. Static

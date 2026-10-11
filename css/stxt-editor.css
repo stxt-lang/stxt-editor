@@ -205,6 +205,13 @@
 	color: var(--stxt-text);
 }
 
+/* What comes first has nothing above it: the description, or the type, without the technical card */
+.stxt-editor .stxt-hover > :first-child {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
 .stxt-editor .stxt-hover-title {
 	font-family: var(--stxt-font-mono);
 	font-size: 0.85rem;

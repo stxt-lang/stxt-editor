@@ -1,4 +1,4 @@
-import { Extension } from "@codemirror/state";
+import { Extension, Facet } from "@codemirror/state";
 import { hoverTooltip } from "@codemirror/view";
 import { NodeDefinitionInfo, NodeInfo } from "../analysis";
 
@@ -6,9 +6,22 @@ import { NodeDefinitionInfo, NodeInfo } from "../analysis";
 export type NodeInfoProvider = (line: number) => NodeInfo | undefined;
 
 /**
- * Hover tooltip for STXT: what the parse knows about the node under the pointer, and what the
- * grammar of its namespace declares for it, when there is one. The content comes from
- * `analysis/nodeInfo.ts`; this file only renders it as DOM.
+ * Whether the hover shows the technical card, which is the default. Without it, the hover is
+ * the documentation of the grammar, for whoever writes the document.
+ */
+export const developerInfo = Facet.define<boolean, boolean>({
+	combine: (values) => (values.length > 0 ? values[0] : true),
+});
+
+/**
+ * Hover tooltip for STXT, in two forms, chosen by {@link developerInfo}:
+ *
+ * - The technical card: what the parse knows about the node under the pointer, and what the
+ *   grammar of its namespace declares for it, when there is one.
+ * - Without it: only what the grammar says about the node, its description, its type and, for
+ *   an `ENUM`, the allowed values. A node no grammar declares has no hover.
+ *
+ * The content comes from `analysis/nodeInfo.ts`; this file only renders it as DOM.
  *
  * @param describe the app's hook into the analyzer for the document in the view.
  */
@@ -19,11 +32,16 @@ export function stxtHover(describe: NodeInfoProvider): Extension {
 		if (!info) {
 			return null;
 		}
+		const technical = view.state.facet(developerInfo);
+		const definition = info.definition;
+		if (!technical && !definition) {
+			return null;
+		}
 		return {
 			pos: line.from,
 			end: line.to,
 			above: true,
-			create: () => ({ dom: render(info) }),
+			create: () => ({ dom: technical || !definition ? render(info) : renderDocumentation(definition) }),
 		};
 	});
 }
@@ -53,6 +71,34 @@ function el(tag: string, className: string, text?: string): HTMLElement {
 		element.textContent = text;
 	}
 	return element;
+}
+
+function row(key: string, value: string): HTMLElement {
+	const element = el("div", "stxt-hover-row");
+	element.appendChild(el("span", "stxt-hover-key", key));
+	element.appendChild(el("span", "stxt-hover-value", value));
+	return element;
+}
+
+/** The type of the node and, for an ENUM, its allowed values. */
+function typeRows(definition: NodeDefinitionInfo): HTMLElement[] {
+	const rows = [row("Type", definition.type)];
+	if (definition.values.length > 0) {
+		rows.push(row("Values", definition.values.join(", ")));
+	}
+	return rows;
+}
+
+/** The hover without the technical card: the description first, then the type. */
+function renderDocumentation(definition: NodeDefinitionInfo): HTMLElement {
+	const root = el("div", "stxt-hover");
+	if (definition.description) {
+		root.appendChild(el("div", "stxt-hover-description", definition.description));
+	}
+	const section = el("div", "stxt-hover-definition");
+	section.append(...typeRows(definition));
+	root.appendChild(section);
+	return root;
 }
 
 function render(info: NodeInfo): HTMLElement {
@@ -87,31 +133,16 @@ function render(info: NodeInfo): HTMLElement {
 function renderDefinition(definition: NodeDefinitionInfo): HTMLElement {
 	const section = el("div", "stxt-hover-definition");
 	section.appendChild(el("div", "stxt-hover-heading", `Grammar ${definition.namespace}`));
-
-	const type = el("div", "stxt-hover-row");
-	type.appendChild(el("span", "stxt-hover-key", "Type"));
-	type.appendChild(el("span", "stxt-hover-value", definition.type));
-	section.appendChild(type);
-
-	if (definition.values.length > 0) {
-		const values = el("div", "stxt-hover-row");
-		values.appendChild(el("span", "stxt-hover-key", "Values"));
-		values.appendChild(el("span", "stxt-hover-value", definition.values.join(", ")));
-		section.appendChild(values);
-	}
+	section.append(...typeRows(definition));
 
 	if (definition.children.length > 0) {
-		const children = el("div", "stxt-hover-row");
-		children.appendChild(el("span", "stxt-hover-key", "Children"));
-		const list = el("span", "stxt-hover-value");
-		list.textContent = definition.children
+		const children = definition.children
 			.map((child) => {
 				const name = child.namespace !== definition.namespace ? `${child.name} (${child.namespace})` : child.name;
 				return `${name} ${cardinality(child.min, child.max)}`;
 			})
 			.join(", ");
-		children.appendChild(list);
-		section.appendChild(children);
+		section.appendChild(row("Children", children));
 	}
 
 	if (definition.description) {

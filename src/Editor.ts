@@ -21,6 +21,16 @@ export interface EditorOptions {
 	indent?: IndentMode;
 	/** Whether the text can only be read, not edited. Defaults to false. */
 	readOnly?: boolean;
+	/** Whether to show the line numbers. Defaults to true. */
+	lineNumbers?: boolean;
+	/**
+	 * Whether the hover shows the technical card: what the parser knows about the node (form,
+	 * level, value, canonical name) and everything its grammar declares. Defaults to true. With
+	 * false the hover is for whoever writes the document: only what the grammar says about the
+	 * node, its description, its type and the values of an `ENUM`; a node no grammar declares has
+	 * no hover.
+	 */
+	developerInfo?: boolean;
 	/** Called once on creation and after every change of the text, with the text and its diagnostics. */
 	onChange?: (text: string, diagnostics: Diagnostic[]) => void;
 	/**
@@ -98,6 +108,8 @@ export class Editor {
 		this.editor = createStxtEditor({
 			parent: root,
 			indent: this.indent,
+			lineNumbers: options.lineNumbers,
+			developerInfo: options.developerInfo,
 			onDocChanged: (view) => this.analyze(view.state.doc.toString()),
 			completions: (line, linePrefix) => this.analyzer.getCompletions(DOCUMENT_ID, line, linePrefix),
 			describeNode: (line) => this.analyzer.describeNode(DOCUMENT_ID, line),
@@ -213,6 +225,25 @@ export class Editor {
 	 */
 	setReadOnly(readOnly: boolean): void {
 		this.view.dispatch({ effects: this.readOnly.reconfigure(Editor.readOnlyExtension(readOnly)) });
+	}
+
+	/**
+	 * Shows or hides the line numbers. The marks of the lines with problems stay either way.
+	 *
+	 * @param show whether to show them.
+	 */
+	setLineNumbers(show: boolean): void {
+		this.editor.setLineNumbers(show);
+	}
+
+	/**
+	 * Chooses what the hover shows: the technical card, or only what the grammar says about the
+	 * node.
+	 *
+	 * @param show whether to show the technical card.
+	 */
+	setDeveloperInfo(show: boolean): void {
+		this.editor.setDeveloperInfo(show);
 	}
 
 	/** The problems of the document, ordered by line (0-based lines). */

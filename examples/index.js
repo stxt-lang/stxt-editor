@@ -65,6 +65,16 @@ document.getElementById("read-only").addEventListener("click", () => {
 	editor.setReadOnly(readOnly);
 	press("read-only", readOnly);
 });
+document.getElementById("line-numbers").addEventListener("click", () => {
+	const show = !pressed("line-numbers");
+	editor.setLineNumbers(show);
+	press("line-numbers", show);
+});
+document.getElementById("developer-info").addEventListener("click", () => {
+	const show = !pressed("developer-info");
+	editor.setDeveloperInfo(show);
+	press("developer-info", show);
+});
 document.getElementById("form").addEventListener("submit", (event) => {
 	event.preventDefault();
 	const text = new FormData(event.target).get("document");

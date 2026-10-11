@@ -23,11 +23,14 @@
 		<button type="button" id="spaces" aria-pressed="false">Spaces</button>
 		<button type="button" id="validation" aria-pressed="true">Schema validation</button>
 		<button type="button" id="read-only" aria-pressed="false">Read-only</button>
+		<button type="button" id="line-numbers" aria-pressed="true">Line numbers</button>
+		<button type="button" id="developer-info" aria-pressed="true">Developer info</button>
 	</div>
 
 	<form id="form">
 		<textarea id="document" name="document">
-# Hover over a node to see what its template says about it
+# Hover over a node to see what its template says about it;
+# without "Developer info", only its description and its type
 Recipe (com.example.cooking): Pancakes
 	Serves: 4
 	Minutes: 20
@@ -65,6 +68,10 @@ Template (@stxt.template): com.example.cooking
 				Ingredient: (+)
 			Steps: (1) TEXT
 			Notes: (?) MARKDOWN
+	Description >>
+		Serves: How many people the recipe feeds
+		Difficulty: How hard the recipe is for someone who cooks at home
+		Notes: Tips and variations, in Markdown
 </script>
 
 	<script src="../dist/stxt-editor.js"></script>
