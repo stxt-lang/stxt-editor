@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Analyzer } from "../src/analysis";
+import { Analyzer, DefinitionLocation } from "../src/analysis";
 
 /** A template whose Structure declares nested nodes and a foreign-namespace child. */
 const TEMPLATE = [
@@ -35,6 +35,12 @@ const RECIPE = [
 	"",
 ].join("\n");
 
+/** A location in the template, which defines `com.example.cooking`. */
+const inTemplate = (line: number): DefinitionLocation => ({ documentId: "template", line, namespace: "com.example.cooking" });
+
+/** A location in the schema, which defines `org.example.notes`. */
+const inNotes = (line: number): DefinitionLocation => ({ documentId: "notes", line, namespace: "org.example.notes" });
+
 function workspace(): Analyzer {
 	const analyzer = new Analyzer();
 	analyzer.setDocument("template", TEMPLATE);
@@ -47,28 +53,28 @@ describe("Go to definition", () => {
 	it("lands on the node's line inside a template Structure", () => {
 		const analyzer = workspace();
 		// `Serves` (line 1, on the name) is declared at line 3 of the template
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 1, 2), { documentId: "template", line: 3 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 1, 2), inTemplate(3));
 		// Nested nodes are found depth-first
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 3, 4), { documentId: "template", line: 5 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 3, 4), inTemplate(5));
 	});
 
 	it("lands on the `Node:` line of a schema, following the node's own namespace", () => {
 		const analyzer = workspace();
 		// `Note (org.example.notes)` belongs to the schema, not to the template that references it
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 4, 2), { documentId: "notes", line: 2 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 4, 2), inNotes(2));
 	});
 
 	it("lands on the grammar root when the position is over the namespace", () => {
 		const analyzer = workspace();
 		// `Recipe (com.example.cooking): Bread`, column 10 is inside the namespace
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 0, 10), { documentId: "template", line: 0 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 0, 10), inTemplate(0));
 		// Column 8 is inside `(org.example.notes)` of the Note line
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 4, 8), { documentId: "notes", line: 1 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 4, 8), inNotes(1));
 	});
 
 	it("falls back to the grammar root when the grammar does not declare the node", () => {
 		const analyzer = workspace();
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 6, 2), { documentId: "template", line: 0 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 6, 2), inTemplate(0));
 	});
 
 	it("resolves nothing over the value, on text lines, without namespace, or without grammar", () => {
@@ -92,6 +98,6 @@ describe("Go to definition", () => {
 		analyzer.setDocument("notes2", NOTES_SCHEMA);
 		assert.strictEqual(analyzer.findDefinition("recipe", 4, 2), undefined, "duplicated namespace");
 		analyzer.removeDocument("notes2");
-		assert.deepStrictEqual(analyzer.findDefinition("recipe", 4, 2), { documentId: "notes", line: 2 });
+		assert.deepStrictEqual(analyzer.findDefinition("recipe", 4, 2), inNotes(2));
 	});
 });

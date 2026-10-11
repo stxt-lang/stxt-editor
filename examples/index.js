@@ -19,14 +19,30 @@ function showProblems(diagnostics) {
 	}
 }
 
+// The template, shown with the static highlighter, one element per line
+const templateText = document.getElementById("template-text");
+templateText.classList.add("stxt-highlight");
+templateText.innerHTML = StxtEditor.highlightText(template.trimEnd())
+	.split("\n")
+	.map((line) => `<span class="line">${line}</span>`)
+	.join("");
+
+// "Go to definition" on a node the template defines: `grammar` is its index in `grammars`
+function showDefinition({ line }) {
+	templateText.querySelector(".target")?.classList.remove("target");
+	const target = templateText.children[line];
+	target.classList.add("target");
+	target.scrollIntoView({ block: "nearest" });
+}
+
 // The whole integration: the textarea and the grammars
 const editor = StxtEditor.fromTextArea(document.getElementById("document"), {
 	grammars: [template],
 	onChange: (text, diagnostics) => showProblems(diagnostics),
+	onGoToDefinition: showDefinition,
 });
 
 // The rest of the page: the switches, and what the form submits
-document.getElementById("template-text").textContent = template;
 
 const press = (id, pressed) => document.getElementById(id).setAttribute("aria-pressed", String(pressed));
 const pressed = (id) => document.getElementById(id).getAttribute("aria-pressed") === "true";

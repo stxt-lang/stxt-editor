@@ -238,7 +238,8 @@ export class Analyzer {
 	 * @param id identifier of the document.
 	 * @param line 0-based line of the position.
 	 * @param character 0-based column of the position.
-	 * @returns the workspace document and line of the definition, or undefined if there is none.
+	 * @returns the workspace document and line of the definition, with the namespace it defines,
+	 * or undefined if there is none.
 	 */
 	findDefinition(id: string, line: number, character: number): DefinitionLocation | undefined {
 		const analysis = this.analyses.get(id);

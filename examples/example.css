@@ -9,6 +9,7 @@
 	--page-muted: #6a737d;
 	--page-error: #b3261e;
 	--page-warning: #8a6d00;
+	--page-target: #fff1b8;
 }
 
 body {
@@ -56,8 +57,17 @@ button[aria-pressed="true"] {
 pre {
 	padding: 0.75rem 1rem;
 	background: var(--page-panel);
+	font-size: 0.9rem;
 	overflow-x: auto;
 	tab-size: 4;
+}
+/* The template, one element per line, and the line "go to definition" lands on */
+#template-text .line {
+	display: block;
+	min-height: 1.5em;
+}
+#template-text .target {
+	background: var(--page-target);
 }
 #problems {
 	margin: 0.5rem 0 0;

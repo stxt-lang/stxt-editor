@@ -23,13 +23,36 @@ export interface EditorOptions {
 	readOnly?: boolean;
 	/** Called once on creation and after every change of the text, with the text and its diagnostics. */
 	onChange?: (text: string, diagnostics: Diagnostic[]) => void;
+	/**
+	 * Called on "go to definition" (Ctrl+Click or Ctrl+B on a node; Cmd on macOS) when the node is
+	 * defined in one of `grammars`: the editor has nowhere to show it, the page decides what to do.
+	 * A definition inside the document itself needs no callback: the cursor goes to it.
+	 */
+	onGoToDefinition?: (location: GrammarLocation) => void;
+}
+
+/** Where a node of the document is defined, in one of the grammars given to the editor. */
+export interface GrammarLocation {
+	/** Index of the grammar in `grammars`. */
+	grammar: number;
+	/** Line of that grammar, 0-based, like the lines of the diagnostics. */
+	line: number;
+	/** Namespace the grammar defines. */
+	namespace: string;
 }
 
 /** Id of the edited document within the analyzer. */
 const DOCUMENT_ID = "document";
 
+/** Prefix of the id of a grammar within the analyzer. */
+const GRAMMAR_ID_PREFIX = "grammar:";
+
 /** Id of the n-th grammar within the analyzer. */
-const grammarId = (index: number): string => `grammar:${index}`;
+const grammarId = (index: number): string => `${GRAMMAR_ID_PREFIX}${index}`;
+
+/** The n of the id of a grammar within the analyzer, or undefined for any other id. */
+const grammarIndex = (id: string): number | undefined =>
+	id.startsWith(GRAMMAR_ID_PREFIX) ? Number(id.slice(GRAMMAR_ID_PREFIX.length)) : undefined;
 
 /** CSS class of the element that holds the editor; the stylesheet is scoped to it. */
 const ROOT_CLASS = "stxt-editor";
@@ -49,6 +72,7 @@ export class Editor {
 	private readonly editor: StxtEditor;
 	private readonly readOnly = new Compartment();
 	private readonly onChange?: EditorOptions["onChange"];
+	private readonly onGoToDefinition?: EditorOptions["onGoToDefinition"];
 	private grammarCount = 0;
 	private indent: IndentMode;
 
@@ -65,6 +89,7 @@ export class Editor {
 		private readonly onDestroy: () => void,
 	) {
 		this.onChange = options.onChange;
+		this.onGoToDefinition = options.onGoToDefinition;
 		this.indent = options.indent ?? "tabs";
 		this.analyzer.setValidation(options.validation ?? true);
 		this.loadGrammars(options.grammars ?? []);
@@ -249,15 +274,24 @@ export class Editor {
 	}
 
 	/**
-	 * "Go to definition": only within the document itself, when it defines its own grammar. The
-	 * given grammars are not on the page, so there is nowhere to go for them.
+	 * "Go to definition". Within the document itself, when it defines its own grammar, the cursor
+	 * goes to the line. The given grammars are not on the page, so there is nowhere to go for
+	 * them: the page is told through `onGoToDefinition`, if it listens.
 	 */
 	private goToDefinition(line: number, character: number): boolean {
 		const location = this.analyzer.findDefinition(DOCUMENT_ID, line, character);
-		if (!location || location.documentId !== DOCUMENT_ID) {
+		if (!location) {
 			return false;
 		}
-		this.view.dispatch({ selection: { anchor: lineAt(this.view.state.doc, location.line).from }, scrollIntoView: true });
+		if (location.documentId === DOCUMENT_ID) {
+			this.view.dispatch({ selection: { anchor: lineAt(this.view.state.doc, location.line).from }, scrollIntoView: true });
+			return true;
+		}
+		const grammar = grammarIndex(location.documentId);
+		if (grammar === undefined || !this.onGoToDefinition) {
+			return false;
+		}
+		this.onGoToDefinition({ grammar, line: location.line, namespace: location.namespace });
 		return true;
 	}
 

@@ -9,7 +9,7 @@
  * editor, it is `@stxt-lang/editor/highlight`.
  */
 
-export { Editor, EditorOptions, fromTextArea, mount } from "./Editor";
+export { Editor, EditorOptions, fromTextArea, GrammarLocation, mount } from "./Editor";
 export { highlight, highlightAll, highlightText, HighlightOptions } from "./highlight";
 export { TOKEN_CLASSES } from "./tokenClasses";
 

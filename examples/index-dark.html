@@ -15,6 +15,7 @@
 		A plain <code>&lt;textarea&gt;</code> turned into an STXT editor with one call, validated
 		against the template below. Try breaking the indentation, writing
 		<code>Difficulty: Impossible</code>, or pressing Ctrl+Space on an empty line under <code>Ingredients</code>.
+		Ctrl+Click on the name of a node goes to its line in the template.
 	</p>
 
 	<div class="toolbar">
@@ -47,7 +48,10 @@ Recipe (com.example.cooking): Pancakes
 	</form>
 
 	<h2>The template</h2>
-	<p>Passed to the editor as <code>grammars</code>, as plain text:</p>
+	<p>
+		Passed to the editor as <code>grammars</code>, as plain text. The editor does not show it:
+		this page does, and marks the line <code>onGoToDefinition</code> gives.
+	</p>
 	<pre id="template-text"></pre>
 
 	<script type="text/plain" id="template">

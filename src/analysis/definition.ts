@@ -8,6 +8,8 @@ export interface DefinitionLocation {
 	documentId: string;
 	/** Line of that document, 0-based. */
 	line: number;
+	/** Namespace of the node, the one that grammar defines. */
+	namespace: string;
 }
 
 /**
@@ -67,6 +69,7 @@ export function findDefinition(
 	return {
 		documentId: definition.documentId,
 		line: onNamespace ? rootLine : (definitionLine(definition.root, node.getName(), namespace) ?? rootLine),
+		namespace,
 	};
 }
 

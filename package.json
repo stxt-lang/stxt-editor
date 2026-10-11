@@ -1,6 +1,6 @@
 {
   "name": "@stxt-lang/editor",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The STXT editor for any web page: highlighting, live errors, grammar-driven completion and hover, on CodeMirror 6.",
   "exports": {
     ".": {
