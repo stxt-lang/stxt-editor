@@ -1,6 +1,6 @@
 {
   "name": "@stxt-lang/editor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The STXT editor for any web page: highlighting, live errors, grammar-driven completion and hover, on CodeMirror 6.",
   "exports": {
     ".": {
@@ -12,6 +12,7 @@
       "import": "./dist/highlight.mjs"
     },
     "./stxt-editor.css": "./dist/stxt-editor.css",
+    "./stxt-editor-dark.css": "./dist/stxt-editor-dark.css",
     "./package.json": "./package.json"
   },
   "module": "./dist/index.mjs",
@@ -35,7 +36,7 @@
     "build:esm": "esbuild src/index.ts src/highlight.ts --bundle --format=esm --target=es2021 --banner:js=\"/*! @stxt-lang/editor | MIT License | https://stxt.dev */\" --external:@codemirror/* --external:@stxt-lang/core --outdir=dist --out-extension:.js=.mjs",
     "build:bundle": "esbuild src/index.ts --bundle --format=iife --global-name=StxtEditor --target=es2021 --minify --banner:js=\"/*! @stxt-lang/editor | MIT License | https://stxt.dev | Includes CodeMirror 6 (MIT) */\" --outfile=dist/stxt-editor.js && esbuild src/highlight.ts --bundle --format=iife --global-name=StxtHighlight --target=es2021 --minify --banner:js=\"/*! @stxt-lang/editor | MIT License | https://stxt.dev */\" --outfile=dist/stxt-highlight.js",
     "build:types": "tsc -p tsconfig.types.json",
-    "build:css": "node -e \"require('node:fs').copyFileSync('css/stxt-editor.css', 'dist/stxt-editor.css')\"",
+    "build:css": "node scripts/build-css.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src test --ext .ts",
     "prebuild": "npm run typecheck && npm run lint",

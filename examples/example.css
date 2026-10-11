@@ -1,15 +1,30 @@
 /* Shared look of the example pages; nothing here is needed to use the editor */
 
+:root {
+	--page-background: #fff;
+	--page-text: #444;
+	--page-accent: #0a6fae;
+	--page-panel: #f7fcff;
+	--page-rule: #f5f5f5;
+	--page-muted: #6a737d;
+	--page-error: #b3261e;
+	--page-warning: #8a6d00;
+}
+
 body {
 	max-width: 52rem;
 	margin: 0 auto;
 	padding: 1.5rem 1rem 3rem;
 	font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-	color: #444;
+	background: var(--page-background);
+	color: var(--page-text);
 	line-height: 1.5;
 }
 h1 {
 	font-size: 1.4rem;
+}
+a {
+	color: var(--page-accent);
 }
 code {
 	font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
@@ -23,16 +38,16 @@ code {
 }
 button {
 	padding: 0.25rem 0.7rem;
-	border: 1px solid #0a6fae;
-	background: #fff;
-	color: #0a6fae;
+	border: 1px solid var(--page-accent);
+	background: var(--page-background);
+	color: var(--page-accent);
 	font: inherit;
 	font-size: 0.85rem;
 	cursor: pointer;
 }
 button[aria-pressed="true"] {
-	background: #0a6fae;
-	color: #fff;
+	background: var(--page-accent);
+	color: var(--page-background);
 }
 /* A fixed height gives a scrolling editor; without it, the editor grows with the text */
 .stxt-editor {
@@ -40,7 +55,7 @@ button[aria-pressed="true"] {
 }
 pre {
 	padding: 0.75rem 1rem;
-	background: #f7fcff;
+	background: var(--page-panel);
 	overflow-x: auto;
 	tab-size: 4;
 }
@@ -52,14 +67,14 @@ pre {
 }
 #problems li {
 	padding: 0.2rem 0;
-	border-bottom: 1px solid #f5f5f5;
+	border-bottom: 1px solid var(--page-rule);
 }
 #problems .error {
-	color: #b3261e;
+	color: var(--page-error);
 }
 #problems .warning {
-	color: #8a6d00;
+	color: var(--page-warning);
 }
 #problems .none {
-	color: #6a737d;
+	color: var(--page-muted);
 }

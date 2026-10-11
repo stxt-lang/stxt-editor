@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>STXT Editor example, dark theme</title>
+	<link rel="stylesheet" href="../dist/stxt-editor-dark.css">
+	<link rel="stylesheet" href="example.css">
+	<link rel="stylesheet" href="example-dark.css">
+</head>
+<body>
+	<h1>STXT Editor</h1>
+	<p><a href="highlight-dark.html">Static highlighting example</a> · <a href="index.html">Light theme</a></p>
+	<p>
+		A plain <code>&lt;textarea&gt;</code> turned into an STXT editor with one call, validated
+		against the template below. Try breaking the indentation, writing
+		<code>Difficulty: Impossible</code>, or pressing Ctrl+Space on an empty line under <code>Ingredients</code>.
+	</p>
+
+	<div class="toolbar">
+		<button type="button" id="tabs" aria-pressed="true">Tabs</button>
+		<button type="button" id="spaces" aria-pressed="false">Spaces</button>
+		<button type="button" id="validation" aria-pressed="true">Schema validation</button>
+		<button type="button" id="read-only" aria-pressed="false">Read-only</button>
+	</div>
+
+	<form id="form">
+		<textarea id="document" name="document">
+# Hover over a node to see what its template says about it
+Recipe (com.example.cooking): Pancakes
+	Serves: 4
+	Minutes: 20
+	Difficulty: Easy
+	Ingredients:
+		Ingredient: 200 g flour
+		Ingredient: 2 eggs
+		Ingredient: 300 ml milk
+	Steps >>
+		Whisk everything together.
+		Rest the batter for ten minutes.
+		Cook on a hot pan, one ladle at a time.
+	Notes >>
+		**Tip**: a pinch of salt makes them *better*.
+</textarea>
+		<ul id="problems"></ul>
+		<p><button type="submit">Submit the form</button> <span id="submitted"></span></p>
+	</form>
+
+	<h2>The template</h2>
+	<p>Passed to the editor as <code>grammars</code>, as plain text:</p>
+	<pre id="template-text"></pre>
+
+	<script type="text/plain" id="template">
+Template (@stxt.template): com.example.cooking
+	Structure >>
+		Recipe (com.example.cooking):
+			Serves: (?) NATURAL
+			Minutes: (?) NATURAL
+			Difficulty: (?) ENUM [Easy, Medium, Hard]
+			Ingredients: (1)
+				Ingredient: (+)
+			Steps: (1) TEXT
+			Notes: (?) MARKDOWN
+</script>
+
+	<script src="../dist/stxt-editor.js"></script>
+	<script src="index.js"></script>
+</body>
+</html>

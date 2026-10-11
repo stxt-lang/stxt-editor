@@ -6,7 +6,8 @@
  * highlighted statically. The colours are custom properties: override them on those classes (or
  * on any ancestor) to theme them without touching this file.
  *
- * The defaults are the palette of https://stxt.dev.
+ * The defaults are the palette of https://stxt.dev, on a light background. For a dark one, a
+ * page loads stxt-editor-dark.css instead: these rules, with the dark palette after them.
  */
 
 .stxt-editor,
@@ -78,6 +79,11 @@
 
 .stxt-editor .cm-activeLineGutter {
 	background: var(--stxt-active-gutter);
+}
+
+/* The caret: the native one, and the drawn one of an editor that adds drawSelection */
+.stxt-editor .cm-content {
+	caret-color: var(--stxt-text);
 }
 
 .stxt-editor .cm-cursor {

@@ -1,0 +1,13 @@
+/* The example pages on a dark background: the colours of example.css, redefined */
+
+:root {
+	color-scheme: dark;
+	--page-background: #0b1016;
+	--page-text: #d3dae1;
+	--page-accent: #6db3f2;
+	--page-panel: #10171e;
+	--page-rule: #24323f;
+	--page-muted: #8a96a3;
+	--page-error: #ff8a80;
+	--page-warning: #e6c35c;
+}

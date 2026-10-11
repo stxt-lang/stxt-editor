@@ -4,8 +4,8 @@ The [STXT](https://stxt.dev) editor for any web page: a `<textarea>` becomes an 
 highlighting, errors while typing, and completion and hover driven by the grammar.
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-editor.css">
-<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-editor.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-editor.css">
+<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-editor.js"></script>
 
 <textarea id="doc" name="doc">
 Recipe (com.example.cooking): Pancakes
@@ -31,7 +31,7 @@ Template (@stxt.template): com.example.cooking
 
 `Serves: four` is underlined: the template says `NATURAL`.
 
-> **Status: 0.1.0.** The API may still change before 1.0.
+> **Status: 0.2.0.** The API may still change before 1.0.
 
 ## What it does
 
@@ -50,13 +50,14 @@ Template (@stxt.template): com.example.cooking
 ### With a `<script>`
 
 The package carries its files ready for a page, minified. Any CDN that serves npm packages
-serves them, under `https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/`:
+serves them, under `https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/`:
 
 | File | Global | Size (gzip) | What it has |
 |---|---|---|---|
 | `dist/stxt-editor.js` | `StxtEditor` | 421 kB (133 kB) | The editor and the static highlighting, with CodeMirror and `@stxt-lang/core` inside |
 | `dist/stxt-highlight.js` | `StxtHighlight` | 76 kB (21 kB) | Only the static highlighting, without CodeMirror |
 | `dist/stxt-editor.css` | — | 6 kB (2 kB) | The styles of both |
+| `dist/stxt-editor-dark.css` | — | 7 kB (2 kB) | The same styles with the [dark theme](#dark-theme), instead of `stxt-editor.css` |
 
 ### With a bundler
 
@@ -90,7 +91,13 @@ Both return an `Editor`. Every option is optional:
 | `readOnly` | `false` | The text can be read, not edited |
 | `onChange` | — | `(text, diagnostics) => void`, on creation and after every change |
 
-A grammar written inside the document itself works too.
+A grammar written inside the document itself works too. A grammar that lives at a URL is
+fetched by the page:
+
+```js
+const template = await (await fetch("/grammars/cooking.stxt")).text();
+editor.setGrammars([template]);
+```
 
 | Method | |
 |---|---|
@@ -127,8 +134,8 @@ editor is made of:
 For pages that show STXT and do not edit it, there is a highlighter without CodeMirror:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-editor.css">
-<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.1.0/dist/stxt-highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-editor.css">
+<script src="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-highlight.js"></script>
 
 <pre><code class="language-stxt">Recipe (com.example.cooking): Pancakes
 	Serves: 4</code></pre>
@@ -185,6 +192,27 @@ Without a height, the editor grows with the text. With one, it scrolls.
 
 The defaults are the palette of <https://stxt.dev>.
 
+### Dark theme
+
+`stxt-editor-dark.css` is the same stylesheet with a dark palette. A page loads it instead of
+`stxt-editor.css`:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-editor-dark.css">
+```
+
+With a bundler: `import "@stxt-lang/editor/stxt-editor-dark.css"`.
+
+To follow the colour scheme of the system, a page loads both, each with its `media`:
+
+```html
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-editor.css">
+<link rel="stylesheet" media="(prefers-color-scheme: dark)" href="https://cdn.jsdelivr.net/npm/@stxt-lang/editor@0.2.0/dist/stxt-editor-dark.css">
+```
+
+The dark palette is the same set of properties, so it is overridden the same way. Static
+highlighting only sets the colours of the text: the dark background of a `<pre>` is the page's.
+
 ## Development
 
 ```bash
@@ -192,7 +220,8 @@ npm install
 npm test        # lint + mocha
 npm run build   # typecheck + lint, then dist/
 npm start       # build and open examples/ at http://localhost:8080 (PORT changes it)
-                # examples/index.html is the editor, examples/highlight.html the highlighter
+                # examples/index.html is the editor, examples/highlight.html the highlighter;
+                # index-dark.html and highlight-dark.html are the same pages with the dark theme
 ```
 
 ## License

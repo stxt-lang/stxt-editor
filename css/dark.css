@@ -1,0 +1,33 @@
+/*
+ * @stxt-lang/editor — the dark theme.
+ *
+ * Only the colours: the custom properties of the light theme, with the same hues on a dark
+ * background. In stxt-editor-dark.css they come after the rules of stxt-editor.css.
+ */
+
+.stxt-editor,
+.stxt-highlight {
+	/* Token colours */
+	--stxt-node: #6db3f2;
+	--stxt-block: #35c4f5;
+	--stxt-namespace: #3fc4c7;
+	--stxt-value: #f08fb0;
+	--stxt-muted: #8a96a3;
+	--stxt-comment: #6cc070;
+
+	/* Chrome */
+	--stxt-background: #10171e;
+	--stxt-text: #d3dae1;
+	--stxt-border: #24323f;
+	--stxt-gutter-background: #141d26;
+	--stxt-active-line: rgba(109, 179, 242, 0.07);
+	--stxt-active-gutter: #1c2a37;
+	--stxt-selected: #1f3449;
+	--stxt-code-background: rgba(109, 179, 242, 0.12);
+	--stxt-separator: #24323f;
+}
+
+/* Scrollbars and the native selection of the editor, dark too */
+.stxt-editor {
+	color-scheme: dark;
+}
